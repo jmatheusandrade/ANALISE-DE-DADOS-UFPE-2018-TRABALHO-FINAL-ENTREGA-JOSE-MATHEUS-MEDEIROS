@@ -21,11 +21,11 @@ db <- read.csv("josematheus-medeiros-bd-tf-ad-ufpe-2018.txt", sep = ";", fileEnc
 
 # Verificando carregamento da base dados
 
-dim(db) #Ver dimensões da base de dados 
+dim(db) # Ver dimensões da base de dados 
 
 head(db)
 
-summary(db) #Resumo da base de dados
+summary(db) # Resumo da base de dados
 
 # Seccionando dados
 
@@ -36,9 +36,9 @@ db <- db[duplicated(db$id) == F,]
 
 df <- db[db$ano > 2002 & db$ano <= 2006,]  #Delimitando a variável Ano a partir de 2003, que corresponde ao primeiro mandato de Lula
 
-df <- df[df$populacao >= 100000,] #Delimitando a variável população para mais de 100000 habitantes, seguindo a indicação de Cerqueira et al (2017)
+df <- df[df$populacao >= 100000,] # Delimitando a variável população para mais de 100000 habitantes, seguindo a indicação de Cerqueira et al (2017)
 
-df <- na.omit(df) #Eliminando observações com dados omissos
+df <- na.omit(df) # Eliminando observações com dados omissos
 
 # Estatísticas descritivas das variáveis
 
@@ -61,46 +61,68 @@ df$pib_pc <- log(df$pib_pc)
 
 ## Verificando associação entre VIs e VD
 
+reg1 <- lm(hom_pc ~ gini + factor(ano), data = df) 
+summary(reg1)
+
 plot(df$hom_pc ~ df$gini)
 abline(lm(df$hom_pc ~ df$gini),col = 'red')
 cor(df$hom_pc,df$gini)
+
+reg2 <- lm(hom_pc ~ educacao + factor(ano), data = df) 
+summary(reg2)
 
 plot(df$hom_pc ~ df$educacao)
 abline(lm(df$hom_pc ~ df$educacao),col = 'red')
 cor(df$hom_pc,df$educacao)
 
+reg3 <- lm(hom_pc ~ renda_media + factor(ano), data = df) 
+summary(reg5)
+
 plot(df$hom_pc ~ df$renda_media)
 abline(lm(df$hom_pc ~ df$renda_media),col = 'red')
 cor(df$hom_pc,df$renda_media)
+
+reg4 <- lm(hom_pc ~ pobreza + factor(ano), data = df) 
+summary(reg4)
 
 plot(df$hom_pc ~ df$pobreza)
 abline(lm(df$hom_pc ~ df$pobreza),col = 'red')
 cor(df$hom_pc,df$pobreza)
 
+reg5 <- lm(hom_pc ~ pib_pc + factor(ano), data = df) 
+summary(reg5)
+
 plot(df$hom_pc ~ df$pib_pc)
 abline(lm(df$hom_pc ~ df$pib_pc),col = 'red')
 cor(df$hom_pc,df$pib_pc)
 
+# Padronizando Variáveis
+df$hom_pc <- scale(df$hom_pc)
+df$gini <- scale(df$gini)
+df$educacao <- scale(df$educacao)
+df$renda_media <- scale(df$renda_media)
+df$pobreza <- scale(df$pobreza)
+df$pib_pc <- scale(df$pib_pc)
 
-reg1 <- lm(hom_pc ~ gini + factor(ano), data = dbnovo2) 
+# Modelo de Regressão
+reg <- lm(hom_pc ~ gini + educacao + renda_media + pobreza + 
+            pib_pc + I(pib_pc ^ 2) + factor(ano), data = df)
 
-summary(reg1)
+# Sumário do Modelo
+summary(reg)
 
-reg2 <- lm(hom_pc ~ educacao + factor(ano), data = dbnovo2) 
+# Gráfico dos Coeficientes
+coefplot(reg, intercept = F)
 
-summary(reg2)
+# Verificando pressupostos do modelo
+# Normalidade dos Resíduos
+hist(residuals(reg))
 
-reg3 <- lm(hom_pc ~ pib_pc + factor(ano), data = dbnovo2) 
+# Heterocedasticidade
+plot(reg, which = 1)
 
-summary(reg3)
+# Multicolinearidade
+vif(reg)
 
-reg4 <- lm(hom_pc ~ pobreza + factor(ano), data = dbnovo2) 
-
-summary(reg4)
-
-reg5 <- lm(hom_pc ~ renda_media + factor(ano), data = dbnovo2) 
-
-summary(reg5)
-
-reg <- lm(hom_pc ~ gini + educacao + renda_media + pobreza + pib_pc + factor(ano), data = dbnovo2) #Regressão Linear, tendo como VD homicídios per capita
-
+# Utilizando estimador de erros-padrão de White-Huber para corrigir heterocedasticidade
+coeftest(reg,vcov. = vcovHC)
