@@ -124,5 +124,5 @@ plot(reg, which = 1)
 # Multicolinearidade
 vif(reg)
 
-# Utilizando estimador de erros-padrão de White-Huber para corrigir heterocedasticidade
+# Utilizando estimador de erros-padrão de Huber-White para corrigir heterocedasticidade
 coeftest(reg,vcov. = vcovHC)
