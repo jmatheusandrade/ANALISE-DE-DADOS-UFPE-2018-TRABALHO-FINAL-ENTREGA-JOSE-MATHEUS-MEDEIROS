@@ -11,9 +11,7 @@ library(lmtest)
 
 # Ajustando diretório de arquivos
 
-setwd("C:/Users/Matheus_Medeiros/Desktop/Matheus1/Mestrado/Davi Moreira/Workshop R/Trabalho Final/") #Ajustando diretÃ³rio
-
-getwd("josematheus-medeiros-bd-tf-ad-ufpe-2018.txt")
+setwd("C:/Users/Matheus_Medeiros/Desktop/Matheus1/Mestrado/Davi Moreira/Workshop R/Trabalho Final/") #Ajustando diretório
 
 # Carregando base de dados
 
@@ -76,7 +74,7 @@ abline(lm(df$hom_pc ~ df$educacao),col = 'red')
 cor(df$hom_pc,df$educacao)
 
 reg3 <- lm(hom_pc ~ renda_media + factor(ano), data = df) 
-summary(reg5)
+summary(reg3)
 
 plot(df$hom_pc ~ df$renda_media)
 abline(lm(df$hom_pc ~ df$renda_media),col = 'red')
